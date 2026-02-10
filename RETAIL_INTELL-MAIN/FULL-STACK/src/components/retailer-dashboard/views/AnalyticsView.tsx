@@ -2,14 +2,19 @@ import { IndianRupee, ShoppingBag, TrendingUp, Eye } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
 import { StatCard } from '../components/StatCard'
 
+interface MonthlySales { name: string; sales: number;[key: string]: string | number }
+interface CategorySales { name: string; value: number;[key: string]: string | number }
+interface SeasonalSales { name: string; sales: number;[key: string]: string | number }
+interface TopRevenue { name: string; revenue: number;[key: string]: string | number }
+
 type Props = {
     totalRevenue: number
     totalProfit: number
     totalViews: number
-    monthlySalesData: any[]
-    categorySalesData: any[]
-    seasonalData: any[]
-    topRevenueData: any[]
+    monthlySalesData: MonthlySales[]
+    categorySalesData: CategorySales[]
+    seasonalData: SeasonalSales[]
+    topRevenueData: TopRevenue[]
     COLORS: string[]
 }
 
@@ -92,7 +97,7 @@ export function AnalyticsView({
                                         cx="50%"
                                         cy="50%"
                                         labelLine={false}
-                                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                                        label={({ name, percent }) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
                                         outerRadius={80} // Reduced for safety responsiveness
                                         fill="#8884d8"
                                         dataKey="value"
@@ -176,7 +181,7 @@ export function AnalyticsView({
                                         contentStyle={{ backgroundColor: '#18181b', borderColor: '#27272a', borderRadius: '8px', color: '#fff' }}
                                         itemStyle={{ color: '#fff' }}
                                         cursor={{ fill: '#27272a' }}
-                                        formatter={(value: any) => `₹${value.toLocaleString()}`}
+                                        formatter={(value: unknown) => `₹${Number(value || 0).toLocaleString()}`}
                                     />
                                     <Bar dataKey="revenue" fill="#3b82f6" radius={[0, 4, 4, 0]} barSize={30} />
                                 </BarChart>

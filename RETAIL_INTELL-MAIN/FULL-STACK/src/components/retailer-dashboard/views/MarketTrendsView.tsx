@@ -1,19 +1,55 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Search, TrendingUp, MapPin, Youtube, ShoppingBag, Newspaper, ArrowUpRight, Loader2, ExternalLink } from 'lucide-react'
 import { getMarketTrends } from '@/app/actions_trends'
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts'
+import { LineChart as _LC, Line as _L, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts'
+import Image from 'next/image'
+
+interface MarketCompetitor {
+    source: string
+    price: number
+    link?: string
+    thumbnail?: string
+    title?: string
+}
+
+interface MarketVideo {
+    title: string
+    source?: string | { name: string }
+    thumbnail?: string
+    views?: string
+}
+
+interface MarketNews {
+    title: string
+    link: string
+    source: string | { name: string }
+    date?: string
+}
+
+interface MarketTrendsData {
+    success: boolean
+    competitors: MarketCompetitor[]
+    pricing_metrics: {
+        min: number
+        avg: number
+        max: number
+    } | null
+    videos: MarketVideo[]
+    news: MarketNews[]
+    isMock?: boolean
+}
 
 const SUGGESTED_KEYWORDS = ["protein bar", "millets snacks", "sugar free biscuits"]
 
 export function MarketTrendsView() {
     const [query, setQuery] = useState('protein bar')
     const [isLoading, setIsLoading] = useState(false)
-    const [data, setData] = useState<any>(null)
+    const [data, setData] = useState<MarketTrendsData | null>(null)
     const [error, setError] = useState<string | null>(null)
 
-    const fetchTrends = async (searchQuery: string = query) => {
+    const fetchTrends = useCallback(async (searchQuery: string = query) => {
         setIsLoading(true)
         setError(null)
         try {
@@ -23,16 +59,16 @@ export function MarketTrendsView() {
             } else {
                 setError(result.error || 'Failed to fetch trends')
             }
-        } catch (err) {
+        } catch (_err) {
             setError('An unexpected error occurred')
         } finally {
             setIsLoading(false)
         }
-    }
+    }, [query])
 
     useEffect(() => {
         fetchTrends('protein bar')
-    }, [])
+    }, [fetchTrends])
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault()
@@ -174,7 +210,7 @@ export function MarketTrendsView() {
                                 Top Competitive Sources
                             </h4>
                             <div className="space-y-3">
-                                {data.competitors?.slice(0, 5).map((c: any, i: number) => (
+                                {data.competitors?.slice(0, 5).map((c, i) => (
                                     <div key={i} className="flex items-center justify-between text-xs">
                                         <span className="text-zinc-300 font-medium">{c.source}</span>
                                         <span className="text-zinc-500">₹{c.price}</span>
@@ -191,9 +227,9 @@ export function MarketTrendsView() {
                             Live Market Price Comparisons
                         </h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                            {data.competitors?.map((c: any, i: number) => {
-                                const isLow = c.price <= (data.pricing_metrics?.min * 1.05);
-                                const isHigh = c.price >= (data.pricing_metrics?.max * 0.95);
+                            {data.competitors?.map((c, i) => {
+                                const isLow = data.pricing_metrics ? c.price <= (data.pricing_metrics.min * 1.05) : false;
+                                const isHigh = data.pricing_metrics ? c.price >= (data.pricing_metrics.max * 0.95) : false;
 
                                 return (
                                     <a
@@ -204,9 +240,9 @@ export function MarketTrendsView() {
                                         className="p-5 rounded-2xl bg-zinc-800/20 border border-zinc-700/30 hover:border-purple-500/30 hover:bg-zinc-800/40 transition-all group"
                                     >
                                         <div className="flex items-start gap-4 mb-4">
-                                            <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center overflow-hidden shrink-0">
+                                            <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center overflow-hidden shrink-0 relative">
                                                 {c.thumbnail ? (
-                                                    <img src={c.thumbnail} alt={c.source} className="w-full h-full object-cover" />
+                                                    <Image src={c.thumbnail} alt={c.source} fill className="object-cover" unoptimized />
                                                 ) : (
                                                     <ShoppingBag className="w-6 h-6 text-zinc-700" />
                                                 )}
@@ -244,13 +280,15 @@ export function MarketTrendsView() {
                             </button>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {data.videos?.map((v: any, i: number) => (
+                            {data.videos?.map((v, i) => (
                                 <div key={i} className="group cursor-pointer">
                                     <div className="relative aspect-video rounded-2xl overflow-hidden mb-3 border border-zinc-800">
-                                        <img
+                                        <Image
                                             src={v.thumbnail || `/placeholder-video.jpg`}
                                             alt={v.title}
-                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                            fill
+                                            className="object-cover group-hover:scale-105 transition-transform duration-500"
+                                            unoptimized
                                         />
                                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                             <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center shadow-xl">
@@ -277,7 +315,7 @@ export function MarketTrendsView() {
                             Market Signals & News
                         </h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {data.news?.map((n: any, i: number) => (
+                            {data.news?.map((n, i) => (
                                 <a
                                     key={i}
                                     href={n.link}

@@ -1,5 +1,6 @@
 import { Package, ShoppingBag, ShoppingCart, MinusCircle, PlusCircle, X, CreditCard, Banknote, Landmark } from 'lucide-react'
 import Script from 'next/script'
+import Image from 'next/image'
 import { Product } from '../types'
 import { CartItem } from '@/app/actions'
 
@@ -261,11 +262,15 @@ export function POSView({
                         <div className="pt-2 text-center border-t border-zinc-800">
                             <p className="text-xs text-zinc-500 mb-2">Or scan this Personal QR Code directly if the above fails:</p>
                             <div className="flex flex-col items-center gap-2">
-                                <img
-                                    src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://razorpay.me/@kodepavankumar`}
-                                    className="w-32 h-32 rounded-lg bg-white p-2"
-                                    alt="Payment QR"
-                                />
+                                <div className="relative w-32 h-32 rounded-lg bg-white p-2">
+                                    <Image
+                                        src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://razorpay.me/@kodepavankumar`}
+                                        fill
+                                        className="object-contain p-2"
+                                        alt="Payment QR"
+                                        unoptimized
+                                    />
+                                </div>
                                 <a
                                     href="https://razorpay.me/@kodepavankumar"
                                     target="_blank"

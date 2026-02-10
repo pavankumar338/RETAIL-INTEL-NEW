@@ -2,8 +2,9 @@
 
 import { createClient } from '@/utils/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { ActionState } from '@/components/retailer-dashboard/types'
 
-export async function createVendor(prevState: any, formData: FormData) {
+export async function createVendor(prevState: ActionState | null, formData: FormData) {
     const supabase = await createClient()
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
@@ -41,7 +42,7 @@ export async function createVendor(prevState: any, formData: FormData) {
     return { success: true, message: 'Vendor added successfully' }
 }
 
-export async function updateVendor(prevState: any, formData: FormData) {
+export async function updateVendor(prevState: ActionState | null, formData: FormData) {
     const supabase = await createClient()
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 

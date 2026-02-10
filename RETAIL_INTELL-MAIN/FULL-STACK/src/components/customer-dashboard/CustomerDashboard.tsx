@@ -6,10 +6,25 @@ import { User, LogOut, TrendingUp, ShoppingBag, Clock, FileText, Smartphone } fr
 import TransactionList from './TransactionList'
 import { useRouter } from 'next/navigation'
 import { getCustomerTransactions, getCustomerStats } from '@/app/actions_customer'
+import { Transaction } from '../retailer-dashboard/types'
+
+interface Profile {
+    id: string
+    role: string
+    full_name: string | null
+    email: string | null
+    org_name?: string | null
+    org_address?: string | null
+    phone?: string | null
+    stats?: {
+        totalSpent: number
+        storesVisited: number
+    }
+}
 
 interface CustomerDashboardProps {
-    profile: any
-    initialTransactions: any[]
+    profile: Profile
+    initialTransactions: Transaction[]
 }
 
 export default function CustomerDashboard({ profile, initialTransactions }: CustomerDashboardProps) {
@@ -20,7 +35,7 @@ export default function CustomerDashboard({ profile, initialTransactions }: Cust
 
     // Polling for real-time updates (since RLS restricts direct client subscription for customers)
     useEffect(() => {
-        const phone = profile.phone || profile.user_metadata?.phone
+        const phone = profile.phone
         if (!phone) return
 
         const fetchLatest = async () => {
@@ -95,13 +110,13 @@ export default function CustomerDashboard({ profile, initialTransactions }: Cust
                         </h1>
                         <p className="text-zinc-500 flex items-center gap-2">
                             <Clock className="w-4 h-4" />
-                            Here's your shopping activity overview
+                            Here&apos;s your shopping activity overview
                         </p>
                     </div>
                     <div className="text-right hidden md:block">
                         <p className="text-xs text-zinc-500 uppercase tracking-wider mb-1">Registered Phone</p>
                         <p className="font-mono text-zinc-300 bg-zinc-900 px-3 py-1 rounded border border-zinc-800 inline-block">
-                            {profile.phone || profile.user_metadata?.phone || 'N/A'}
+                            {profile.phone || 'N/A'}
                         </p>
                     </div>
                 </header>

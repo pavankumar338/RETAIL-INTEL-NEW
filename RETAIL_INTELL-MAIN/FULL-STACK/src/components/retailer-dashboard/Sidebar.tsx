@@ -1,11 +1,16 @@
 import { TrendingUp, LayoutDashboard, Box, BarChart3, Calculator, Users, LogOut, Truck, Sparkles, Search, ShieldAlert } from 'lucide-react'
 import { Tab } from './types'
 
+interface Profile {
+    full_name?: string | null
+    email?: string | null
+}
+
 type Props = {
     activeTab: Tab
     setActiveTab: (tab: Tab) => void
     isSidebarOpen: boolean
-    profile: any
+    profile: Profile
     handleSignOut: () => void
 }
 

@@ -97,7 +97,7 @@ export async function signup(formData: FormData) {
 
     // Clean metadata
     const metaData = Object.fromEntries(
-        Object.entries(rawMetaData).filter(([_, v]) => v != null && v !== '')
+        Object.entries(rawMetaData).filter(([, v]) => v != null && v !== '')
     )
 
     // Validation
@@ -118,7 +118,7 @@ export async function signup(formData: FormData) {
         return { error: error.message }
     }
 
-    let authUser = data.user;
+    const authUser = data.user;
 
     // --- MANUAL PROFILE FALLBACK ---
     if (authUser) {

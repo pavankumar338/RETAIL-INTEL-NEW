@@ -1,12 +1,12 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import { login, signup } from './actions'
 import {
-    Loader2, Phone, Lock, Store, User, Building2, ArrowRight, Smartphone, Mail,
-    BarChart3, Brain, Zap, Shield, CheckCircle2, LayoutDashboard, TrendingUp,
-    Package, ShoppingCart, CreditCard, LineChart, Receipt, Users, Search, Menu,
-    MoreHorizontal, Wallet, RefreshCcw, DollarSign, Calendar, PieChart, Plus
+    Loader2, Lock, Store, User, Building2, ArrowRight, Smartphone, Mail,
+    BarChart3, Brain, Shield, TrendingUp, Package, ShoppingCart, CreditCard,
+    Receipt, Users
 } from 'lucide-react'
 
 // --- Feature Showcase & Mocks ---
@@ -91,10 +91,11 @@ function FeatureShowcase() {
                             <div className={`absolute -inset-4 bg-gradient-to-r from-${feature.color}-500/20 to-purple-500/20 rounded-[2rem] blur-2xl opacity-40 group-hover:opacity-60 transition-opacity duration-500`} />
                             <div className="relative rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-zinc-900 ring-1 ring-white/5 transform group-hover:scale-[1.02] group-hover:-rotate-1 transition-all duration-500">
                                 <div className="aspect-[16/10] bg-zinc-900 relative">
-                                    <img
+                                    <Image
                                         src={feature.image}
                                         alt={feature.label}
-                                        className="w-full h-full object-cover"
+                                        fill
+                                        className="object-cover"
                                     />
                                     {/* Overlay Gradient for better blending */}
                                     <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/40 to-transparent pointer-events-none" />
@@ -154,8 +155,9 @@ export default function AuthPage() {
                     setMessage({ type: 'success', text: result.message })
                 }
             }
-        } catch (error: any) {
-            setMessage({ type: 'error', text: error.message || 'An unexpected error occurred' })
+        } catch (error: unknown) {
+            const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+            setMessage({ type: 'error', text: errorMessage })
         } finally {
             setLoading(false)
         }

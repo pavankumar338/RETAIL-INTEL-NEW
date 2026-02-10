@@ -39,8 +39,16 @@ export async function getMarketTrends(query: string) {
         const shoppingRes = await fetch(`https://serpapi.com/search.json?engine=google_shopping&q=${encodeURIComponent(query)}&api_key=${SERPAPI_KEY}&gl=in&hl=en`);
         const shoppingData = await shoppingRes.json();
 
+        type SerpCompetitor = {
+            source: string;
+            extracted_price: number;
+            title: string;
+            thumbnail?: string;
+            link?: string;
+        }
+
         // Extract pricing metrics
-        const competitors = shoppingData.shopping_results?.slice(0, 10).map((r: any) => ({
+        const competitors = shoppingData.shopping_results?.slice(0, 10).map((r: SerpCompetitor) => ({
             source: r.source,
             price: r.extracted_price,
             title: r.title,
@@ -48,7 +56,7 @@ export async function getMarketTrends(query: string) {
             link: r.link
         })) || [];
 
-        const prices = competitors.map((c: any) => c.price).filter((p: number) => typeof p === 'number');
+        const prices = competitors.map((c: { price: number }) => c.price).filter((p: number) => typeof p === 'number');
         const pricing_metrics = prices.length > 0 ? {
             min: Math.min(...prices),
             max: Math.max(...prices),
@@ -71,7 +79,7 @@ export async function getMarketTrends(query: string) {
             news: newsData.news_results?.slice(0, 5) || [],
             videos: videoData.video_results?.slice(0, 4) || []
         };
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('SerpAPI Error:', error);
         return { error: 'Failed to fetch market data from SerpAPI' };
     }

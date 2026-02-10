@@ -1,7 +1,7 @@
 'use server'
 
 import { createClient } from '@/utils/supabase/server'
-import { createClient as createAdminClient } from '@supabase/supabase-js'
+import { createClient as createAdminClient, SupabaseClient } from '@supabase/supabase-js'
 
 export async function getCustomerTransactions(phone: string) {
     if (!phone) return []
@@ -12,7 +12,7 @@ export async function getCustomerTransactions(phone: string) {
 
     // Try to init admin client to bypass RLS issues for customers viewing retailer records
     // As noted in page.tsx, customers don't "own" the transaction rows.
-    let clientToUse: any = null
+    let clientToUse: SupabaseClient | null = null
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
     if (serviceRoleKey) {
@@ -50,7 +50,7 @@ export async function getCustomerStats(phone: string) {
     if (!cleanPhone) return null
 
     // Admin client setup
-    let clientToUse: any = null
+    let clientToUse: SupabaseClient | null = null
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
     if (serviceRoleKey) {
@@ -74,7 +74,7 @@ export async function getCustomerStats(phone: string) {
     }
 
     if (posSummary) {
-        const totalSpent = posSummary.reduce((sum: number, record: any) => sum + (record.total_spend || 0), 0)
+        const totalSpent = posSummary.reduce((sum: number, record: { total_spend: number }) => sum + (record.total_spend || 0), 0)
         const storesVisited = posSummary.length
         return { totalSpent, storesVisited }
     }

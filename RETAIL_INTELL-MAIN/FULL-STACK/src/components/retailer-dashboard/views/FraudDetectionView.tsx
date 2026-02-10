@@ -2,7 +2,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { ShieldAlert, AlertTriangle, Activity, Clock, Search, CheckCircle, XCircle, Eye } from 'lucide-react'
+import { ShieldAlert, AlertTriangle, Activity, Clock, Search, CheckCircle } from 'lucide-react'
 import { getFraudAlerts, resolveAlert, type FraudAlert } from '@/app/actions_fraud'
 
 export function FraudDetectionView() {

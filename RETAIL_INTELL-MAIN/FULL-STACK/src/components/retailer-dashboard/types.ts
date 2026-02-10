@@ -45,11 +45,18 @@ export type ActionState = {
     message?: string
 }
 
+export type TransactionItem = {
+    id: string
+    name: string
+    price: number
+    quantity: number
+}
+
 export type Transaction = {
     transaction_id: string
     user_id: string
     customer_phone: string
-    items: any[]
+    items: TransactionItem[]
     subtotal: number
     tax: number
     total: number

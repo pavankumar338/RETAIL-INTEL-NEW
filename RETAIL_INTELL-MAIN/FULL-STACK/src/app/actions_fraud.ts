@@ -10,7 +10,7 @@ export type FraudAlert = {
     severity: 'low' | 'medium' | 'high' | 'critical'
     alert_type: string
     description: string
-    details: any
+    details: Record<string, unknown>
     created_at: string
 }
 

@@ -33,8 +33,15 @@ const initialState: ActionState = {
     success: false
 }
 
+interface Profile {
+    id: string
+    role?: string
+    full_name?: string | null
+    email?: string | null
+}
+
 type Props = {
-    profile: any
+    profile: Profile
     products: Product[]
     customers?: Customer[]
     vendors?: Vendor[]
@@ -106,7 +113,7 @@ export default function RetailerDashboard({ profile, products = [], customers = 
     // Vendor State
     const [isVendorModalOpen, setIsVendorModalOpen] = useState(false)
     const [editingVendor, setEditingVendor] = useState<Vendor | null>(null)
-    const [vendorFormState, vendorFormAction, isVendorPending] = useActionState(editingVendor ? updateVendor : createVendor, initialState)
+    const [vendorFormState, _vendorFormAction, _isVendorPending] = useActionState(editingVendor ? updateVendor : createVendor, initialState)
 
     useEffect(() => {
         if (vendorFormState?.success && isVendorModalOpen) {
@@ -283,7 +290,7 @@ export default function RetailerDashboard({ profile, products = [], customers = 
                     name: "Retail Intelligence POS",
                     description: "POS Transaction",
                     order_id: order.id,
-                    handler: async function (response: any) {
+                    handler: async function (_response: { razorpay_payment_id: string; razorpay_order_id: string; razorpay_signature: string }) {
                         setStatusMessage('Verifying and Recording Order...')
                         try {
                             const result = await processOrder(cart, customerPhone, 'upi', customerName, customerEmail)
@@ -327,8 +334,9 @@ export default function RetailerDashboard({ profile, products = [], customers = 
                     }
                 };
 
-                const rzp1 = new (window as any).Razorpay(options);
-                rzp1.on('payment.failed', function (response: any) {
+                // @ts-expect-error - Razorpay is added via script tag
+                const rzp1 = new window.Razorpay(options);
+                rzp1.on('payment.failed', function (response: { error: { description: string } }) {
                     setOrderStatus('error')
                     setStatusMessage(response.error.description || 'Payment failed.')
                     setIsProcessing(false)
@@ -373,7 +381,6 @@ export default function RetailerDashboard({ profile, products = [], customers = 
 
 
     // React 19 useActionState
-    // @ts-ignore - Ignoring strict union mismatch for rapid prototyping
     const [state, formAction, isPending] = useActionState(upsertProduct, initialState)
 
     useEffect(() => {
@@ -428,7 +435,7 @@ export default function RetailerDashboard({ profile, products = [], customers = 
             const parsed = lines.slice(1).map(line => {
                 // Regex to split by comma, ignoring commas inside quotes
                 const values = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(val => val.trim().replace(/^"|"$/g, '').replace(/""/g, '"'))
-                const obj: any = {}
+                const obj: Partial<Product> & { [key: string]: string | number | boolean | undefined } = {}
                 headers.forEach((h, i) => {
                     const cleanH = h.replace(/[^a-z0-9]/g, '')
 
@@ -436,13 +443,13 @@ export default function RetailerDashboard({ profile, products = [], customers = 
                     if (['name', 'productname', 'itemname'].includes(cleanH)) obj.name = values[i]
 
                     // Price
-                    else if (['price', 'priceunit', 'priceperunit', 'unitprice'].includes(cleanH)) obj.price = values[i]
+                    else if (['price', 'priceunit', 'priceperunit', 'unitprice'].includes(cleanH)) obj.price = parseFloat(values[i]) || 0
 
                     // Cost
-                    else if (['cost', 'costunit', 'costperunit', 'unitcost'].includes(cleanH)) obj.cost_per_unit = values[i]
+                    else if (['cost', 'costunit', 'costperunit', 'unitcost'].includes(cleanH)) obj.cost_per_unit = parseFloat(values[i]) || 0
 
                     // Stock
-                    else if (['stock', 'quantity', 'stockquantity', 'inventory', 'units', 'stockavailable'].includes(cleanH)) obj.stock_quantity = values[i]
+                    else if (['stock', 'quantity', 'stockquantity', 'inventory', 'units', 'stockavailable'].includes(cleanH)) obj.stock_quantity = parseInt(values[i]) || 0
 
                     // Category
                     else if (['category', 'cat', 'department'].includes(cleanH)) obj.category = values[i]
@@ -451,10 +458,10 @@ export default function RetailerDashboard({ profile, products = [], customers = 
                     else if (['sku', 'id', 'productid', 'customid', 'customproductid'].includes(cleanH)) obj.custom_product_id = values[i]
 
                     // Analytics
-                    else if (['sales', 'salescount', 'unitssold', 'sold'].includes(cleanH)) obj.sales_count = values[i]
-                    else if (['revenue', 'totalrevenue', 'rev'].includes(cleanH)) obj.total_revenue = values[i]
-                    else if (['profit', 'netincome'].includes(cleanH)) obj.profit = values[i]
-                    else if (['demand', 'demandscore', 'score'].includes(cleanH)) obj.demand_score = values[i]
+                    else if (['sales', 'salescount', 'unitssold', 'sold'].includes(cleanH)) obj.sales_count = parseInt(values[i]) || 0
+                    else if (['revenue', 'totalrevenue', 'rev'].includes(cleanH)) obj.total_revenue = parseFloat(values[i]) || 0
+                    else if (['profit', 'netincome'].includes(cleanH)) obj.profit = parseFloat(values[i]) || 0
+                    else if (['demand', 'demandscore', 'score'].includes(cleanH)) obj.demand_score = parseFloat(values[i]) || 0
 
                     // Meta
                     else if (['season', 'currentseason', 'timeofyear'].includes(cleanH)) obj.season = values[i]
@@ -462,7 +469,7 @@ export default function RetailerDashboard({ profile, products = [], customers = 
                     else if (['description', 'desc', 'details', 'info'].includes(cleanH)) obj.description = values[i]
 
                     // Extended Prediction Fields
-                    else if (['monthnum', 'monthnumber', 'month_num', 'month_no'].includes(cleanH)) obj.month_num = values[i]
+                    else if (['monthnum', 'monthnumber', 'month_num', 'month_no'].includes(cleanH)) obj.month_num = parseInt(values[i]) || 0
                     else if (['isfestival', 'festival', 'holiday', 'is_festival'].includes(cleanH)) {
                         const val = values[i].toLowerCase()
                         obj.is_festival = val === 'true' || val === 'yes' || val === '1'
@@ -471,7 +478,7 @@ export default function RetailerDashboard({ profile, products = [], customers = 
                         const val = values[i].toLowerCase()
                         obj.is_promo = val === 'true' || val === 'yes' || val === '1'
                     }
-                    else if (['discount', 'discountpercent', 'discount_percent', 'off'].includes(cleanH)) obj.discount_percent = values[i]
+                    else if (['discount', 'discountpercent', 'discount_percent', 'off'].includes(cleanH)) obj.discount_percent = parseFloat(values[i]) || 0
 
                     // Fallback
                     else obj[h] = values[i]
@@ -612,7 +619,6 @@ export default function RetailerDashboard({ profile, products = [], customers = 
                             products={products}
                             totalProducts={totalProducts}
                             totalSales={totalSales}
-                            totalViews={totalViews}
                             totalRevenue={totalRevenue}
                             totalProfit={totalProfit}
                             categories={categories}

@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { TrendingUp, ArrowRight, Sparkles, RefreshCw, CheckCircle2, Loader2, Zap, AlertTriangle, ArrowUpRight, ArrowDownRight, BrainCircuit } from 'lucide-react'
+import { ArrowRight, Sparkles, RefreshCw, CheckCircle2, Loader2, Zap, AlertTriangle, ArrowUpRight, ArrowDownRight, BrainCircuit } from 'lucide-react'
 import { Product } from '../types'
 import { applyDynamicPrice, bulkApplyDynamicPrices } from '@/app/actions'
 import { useRouter } from 'next/navigation'
@@ -92,7 +92,7 @@ export function PricingOptimizationView({ products }: Props) {
             } else {
                 setStatus({ type: 'error', message: res.error || 'Failed to update price' })
             }
-        } catch (err) {
+        } catch (_err) {
             setStatus({ type: 'error', message: 'An unexpected error occurred' })
         } finally {
             setUpdatingId(null)
@@ -115,7 +115,7 @@ export function PricingOptimizationView({ products }: Props) {
             } else {
                 setStatus({ type: 'error', message: res.error || 'Bulk update failed' })
             }
-        } catch (err) {
+        } catch (_err) {
             setStatus({ type: 'error', message: 'An unexpected error occurred' })
         } finally {
             setIsBulkUpdating(false)
@@ -221,7 +221,7 @@ export function PricingOptimizationView({ products }: Props) {
 
                                 <div className="p-4 bg-zinc-950/50 rounded-2xl border border-zinc-800/50 mb-6 min-h-[80px]">
                                     <p className="text-xs text-zinc-400 leading-relaxed italic">
-                                        "{s.reason}"
+                                        &quot;{s.reason}&quot;
                                     </p>
                                 </div>
 

@@ -1,8 +1,9 @@
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
-import { Building2, Store, User, LogOut } from 'lucide-react'
 import RetailerDashboard from '@/components/RetailerDashboard'
 import CustomerDashboard from '@/components/customer-dashboard/CustomerDashboard'
+import { Product, Customer as POSCustomer, Vendor, Transaction } from '@/components/retailer-dashboard/types'
+import { SupabaseClient } from '@supabase/supabase-js'
 
 export default async function Dashboard() {
   const supabase = await createClient()
@@ -38,7 +39,7 @@ export default async function Dashboard() {
   }
 
   // 4. Fetch Retailer Data (Products)
-  let products: any[] = []
+  let products: Product[] = []
   if (profile.role === 'retailer') {
     const { data, error } = await supabase
       .from('products')
@@ -54,7 +55,7 @@ export default async function Dashboard() {
   }
 
   // 5. Fetch Customers (POS)
-  let customers: any[] = []
+  let customers: POSCustomer[] = []
   if (profile.role === 'retailer') {
     const { data: custData } = await supabase
       .from('pos_customers')
@@ -66,7 +67,7 @@ export default async function Dashboard() {
   }
 
   // 6. Fetch Vendors
-  let vendors: any[] = []
+  let vendors: Vendor[] = []
   if (profile.role === 'retailer') {
     const { data: vendorData } = await supabase
       .from('vendors')
@@ -78,7 +79,7 @@ export default async function Dashboard() {
   }
 
   // 7. Fetch Customer Transactions
-  let customerTransactions: any[] = []
+  let customerTransactions: Transaction[] = []
 
   if (profile.role === 'customer') {
     // Try to get phone from profile or metadata
@@ -87,14 +88,14 @@ export default async function Dashboard() {
 
     if (phone) {
       // Use Admin Client to bypass RLS if possible
-      let dataClient: any | null = null
+      let dataClient: SupabaseClient | null = null
 
       const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
       if (serviceRoleKey) {
         try {
-          const { createClient: createAdminClient } = require('@supabase/supabase-js')
-          dataClient = createAdminClient(process.env.NEXT_PUBLIC_SUPABASE_URL, serviceRoleKey)
+          const { createClient: createAdminClient } = await import('@supabase/supabase-js')
+          dataClient = createAdminClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, serviceRoleKey)
         } catch (e) {
           console.error("Failed to init admin client:", e)
         }
@@ -135,7 +136,7 @@ export default async function Dashboard() {
 
       if (posSummary) {
         // Calculate total stats
-        const totalSpent = posSummary.reduce((sum: number, record: any) => sum + (record.total_spend || 0), 0)
+        const totalSpent = posSummary.reduce((sum: number, record: { total_spend: number }) => sum + (record.total_spend || 0), 0)
         const storesVisited = posSummary.length
 
         // Attach to profile for display

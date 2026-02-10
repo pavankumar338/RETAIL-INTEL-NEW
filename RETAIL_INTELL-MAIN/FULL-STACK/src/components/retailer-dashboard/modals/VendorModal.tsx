@@ -1,12 +1,12 @@
 import { X } from 'lucide-react'
-import { Vendor } from '../types'
+import { Vendor, ActionState } from '../types'
 
 type Props = {
     isOpen: boolean
     onClose: () => void
     editingVendor: Vendor | null
     handleSubmit: (formData: FormData) => void
-    state: any
+    state: ActionState | null
     isPending: boolean
 }
 

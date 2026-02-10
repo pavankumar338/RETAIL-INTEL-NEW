@@ -5,7 +5,9 @@ import { revalidatePath } from 'next/cache'
 import Razorpay from 'razorpay'
 import { FraudDetectionEngine, TransactionContext } from '@/utils/fraud-engine'
 
-export async function upsertProduct(prevState: any, formData: FormData) {
+import { ActionState, Product } from '@/components/retailer-dashboard/types'
+
+export async function upsertProduct(prevState: ActionState | null, formData: FormData) {
     const supabase = await createClient()
 
     // Auth check
@@ -114,7 +116,7 @@ export async function deleteProduct(productId: string) {
     return { success: true }
 }
 
-export async function bulkCreateProducts(prevState: any, products: any[]) {
+export async function bulkCreateProducts(prevState: ActionState | null, products: Partial<Product>[]) {
     const supabase = await createClient()
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
@@ -129,22 +131,22 @@ export async function bulkCreateProducts(prevState: any, products: any[]) {
     // Map and sanitize
     const productsToInsert = products.map(p => ({
         retailer_id: user.id,
-        name: p.name,
+        name: p.name as string,
         description: p.description || null,
-        price: parseFloat(p.price) || 0,
-        cost_per_unit: parseFloat(p.cost_per_unit) || 0,
+        price: typeof p.price === 'number' ? p.price : parseFloat(String(p.price || 0)) || 0,
+        cost_per_unit: typeof p.cost_per_unit === 'number' ? p.cost_per_unit : parseFloat(String(p.cost_per_unit || 0)) || 0,
         category: p.category || 'Other',
-        stock_quantity: parseInt(p.stock_quantity) || 0,
-        sales_count: parseInt(p.sales_count) || 0,
-        total_revenue: parseFloat(p.total_revenue) || 0,
-        profit: parseFloat(p.profit) || 0,
-        demand_score: parseInt(p.demand_score) || 0,
+        stock_quantity: typeof p.stock_quantity === 'number' ? p.stock_quantity : parseInt(String(p.stock_quantity || 0)) || 0,
+        sales_count: typeof p.sales_count === 'number' ? p.sales_count : parseInt(String(p.sales_count || 0)) || 0,
+        total_revenue: typeof p.total_revenue === 'number' ? p.total_revenue : parseFloat(String(p.total_revenue || 0)) || 0,
+        profit: typeof p.profit === 'number' ? p.profit : parseFloat(String(p.profit || 0)) || 0,
+        demand_score: typeof p.demand_score === 'number' ? p.demand_score : parseInt(String(p.demand_score || 0)) || 0,
         season: p.season || null,
         month: p.month || null,
-        month_num: parseInt(p.month_num) || 0,
-        is_festival: p.is_festival === true || p.is_festival === 'true',
-        is_promo: p.is_promo === true || p.is_promo === 'true',
-        discount_percent: parseFloat(p.discount_percent) || 0,
+        month_num: typeof p.month_num === 'number' ? p.month_num : parseInt(String(p.month_num || 0)) || 0,
+        is_festival: p.is_festival === true || String(p.is_festival) === 'true',
+        is_promo: p.is_promo === true || String(p.is_promo) === 'true',
+        discount_percent: typeof p.discount_percent === 'number' ? p.discount_percent : parseFloat(String(p.discount_percent || 0)) || 0,
         region: p.region || null,
         custom_product_id: p.custom_product_id || null,
         created_at: new Date().toISOString(),
@@ -398,7 +400,7 @@ export async function processOrder(items: CartItem[], customerPhone: string, pay
     return { success: true, message: 'Order processed successfully!' }
 }
 
-export async function updateCustomer(prevState: any, formData: FormData) {
+export async function updateCustomer(prevState: ActionState | null, formData: FormData) {
     const supabase = await createClient()
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
@@ -449,9 +451,10 @@ export async function createRazorpayOrder(amount: number) {
 
         const order = await instance.orders.create(options);
         return { order };
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Razorpay Order Creation Error:", error);
-        return { error: error.message || 'Failed to create payment order.' };
+        const errorMessage = error instanceof Error ? error.message : 'Failed to create payment order.';
+        return { error: errorMessage };
     }
 }
 

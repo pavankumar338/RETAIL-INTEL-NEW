@@ -10,10 +10,9 @@ import {
     ChevronDown,
     ChevronUp,
     Store,
-    Receipt,
     Download
 } from 'lucide-react'
-import { Transaction } from '@/components/retailer-dashboard/types'
+import { Transaction, TransactionItem as TItem } from '@/components/retailer-dashboard/types'
 
 interface TransactionListProps {
     transactions: Transaction[]
@@ -49,7 +48,7 @@ function TransactionItem({ transaction }: { transaction: Transaction }) {
     const [isExpanded, setIsExpanded] = useState(false)
 
     // Calculate total items count
-    const itemCount = transaction.items?.reduce((acc: number, item: any) => acc + (item.quantity || 1), 0) || 0
+    const itemCount = transaction.items?.reduce((acc: number, item: TItem) => acc + (item.quantity || 1), 0) || 0
 
     const handleDownload = (e: React.MouseEvent) => {
         e.stopPropagation(); // Prevent toggling the accordion
@@ -101,7 +100,7 @@ function TransactionItem({ transaction }: { transaction: Transaction }) {
                             </tr>
                         </thead>
                         <tbody>
-                            ${transaction.items?.map((item: any) => `
+                            ${transaction.items?.map((item: TItem) => `
                                 <tr>
                                     <td>
                                         <div style="font-weight: 500; color: #111827;">${item.name}</div>
@@ -190,7 +189,7 @@ function TransactionItem({ transaction }: { transaction: Transaction }) {
                     <div>
                         <h4 className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3">Items Purchased</h4>
                         <div className="grid gap-3">
-                            {transaction.items?.map((item: any, idx: number) => (
+                            {transaction.items?.map((item: TItem, idx: number) => (
                                 <div key={idx} className="flex justify-between items-center p-3 rounded-lg bg-zinc-950/50 border border-zinc-800/50">
                                     <div className="flex items-center gap-3">
                                         <div className="w-10 h-10 rounded-md bg-zinc-800 flex items-center justify-center text-xs font-medium text-zinc-500">

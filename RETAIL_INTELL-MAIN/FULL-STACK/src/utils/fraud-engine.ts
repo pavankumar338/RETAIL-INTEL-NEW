@@ -3,7 +3,7 @@ export type FraudSignal = {
     severity: 'low' | 'medium' | 'high' | 'critical';
     type: 'skip_scan' | 'discount_abuse' | 'cash_pocketing' | 'time_anomaly' | 'price_override';
     description: string;
-    details?: any;
+    details?: Record<string, unknown>;
 }
 
 export type TransactionContext = {

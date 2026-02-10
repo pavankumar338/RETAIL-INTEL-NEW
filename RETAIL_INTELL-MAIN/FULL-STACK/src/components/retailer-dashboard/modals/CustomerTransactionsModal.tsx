@@ -1,5 +1,5 @@
-import { X, Receipt, Calendar, CreditCard, Box, User, Phone, Mail, AlertCircle, Store, IndianRupee, Clock } from 'lucide-react'
-import { Transaction, Customer } from '../types'
+import { X, Receipt, Calendar, CreditCard, Box, User, Phone, Mail, AlertCircle, IndianRupee, Clock } from 'lucide-react'
+import { Transaction, Customer, TransactionItem } from '../types'
 import { format } from 'date-fns'
 
 type Props = {
@@ -172,14 +172,14 @@ export function CustomerTransactionsModal({ isOpen, onClose, transactions, custo
                                             <div className="text-right">
                                                 <div className="text-lg font-bold text-white">₹{tx.total.toFixed(2)}</div>
                                                 <div className="text-xs text-zinc-500">
-                                                    {tx.items.reduce((acc: number, item: any) => acc + item.quantity, 0)} items • {tx.payment_method.toUpperCase()}
+                                                    {tx.items.reduce((acc: number, item: TransactionItem) => acc + item.quantity, 0)} items • {tx.payment_method.toUpperCase()}
                                                 </div>
                                             </div>
                                         </div>
 
                                         {/* Compact Items List */}
                                         <div className="bg-zinc-950/50 rounded-lg p-3 space-y-2">
-                                            {tx.items.map((item: any, idx: number) => (
+                                            {tx.items.map((item: TransactionItem, idx: number) => (
                                                 <div key={idx} className="flex items-center justify-between text-sm">
                                                     <div className="flex items-center gap-2 text-zinc-300">
                                                         <Box className="w-3 h-3 text-zinc-600" />

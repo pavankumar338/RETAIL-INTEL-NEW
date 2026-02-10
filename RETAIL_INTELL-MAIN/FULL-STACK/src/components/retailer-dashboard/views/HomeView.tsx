@@ -19,7 +19,6 @@ type Props = {
     products: Product[]
     totalProducts: number
     totalSales: number
-    totalViews: number
     totalRevenue: number
     totalProfit: number
     categories: Record<string, number>
@@ -30,7 +29,6 @@ export function HomeView({
     products,
     totalProducts,
     totalSales,
-    totalViews,
     totalRevenue,
     totalProfit,
     categories,
