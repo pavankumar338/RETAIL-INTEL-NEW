@@ -113,7 +113,7 @@ export default function RetailerDashboard({ profile, products = [], customers = 
     // Vendor State
     const [isVendorModalOpen, setIsVendorModalOpen] = useState(false)
     const [editingVendor, setEditingVendor] = useState<Vendor | null>(null)
-    const [vendorFormState, _vendorFormAction, _isVendorPending] = useActionState(editingVendor ? updateVendor : createVendor, initialState)
+    const [vendorFormState] = useActionState(updateVendor, initialState)
 
     useEffect(() => {
         if (vendorFormState?.success && isVendorModalOpen) {
@@ -121,13 +121,6 @@ export default function RetailerDashboard({ profile, products = [], customers = 
             setEditingVendor(null)
         }
     }, [vendorFormState, isVendorModalOpen])
-
-    // Determine which action to use for vendor form based on editing state
-    // This is a bit tricky with useActionState, as the hook is called at the top level with one function.
-    // A better approach for switching actions is a wrapper or separate forms, but for simplicity here we can use a small workaround or just use same action that dispatches.
-    // Actually, React 19 useActionState takes one fn. Let's create a Dispatcher Action or just use two hooks if possible? 
-    // No, standard way is a wrapper. I'll use a wrapper function 'upsertVendor' later or simpler:
-    // Let's create a 'manageVendor' action that dispatches.
 
     // Alternative: Just use two separate hooks?
     // const [createVState, createVAction] = useActionState(createVendor, initialState)
@@ -290,7 +283,7 @@ export default function RetailerDashboard({ profile, products = [], customers = 
                     name: "Retail Intelligence POS",
                     description: "POS Transaction",
                     order_id: order.id,
-                    handler: async function (_response: { razorpay_payment_id: string; razorpay_order_id: string; razorpay_signature: string }) {
+                    handler: async function () {
                         setStatusMessage('Verifying and Recording Order...')
                         try {
                             const result = await processOrder(cart, customerPhone, 'upi', customerName, customerEmail)

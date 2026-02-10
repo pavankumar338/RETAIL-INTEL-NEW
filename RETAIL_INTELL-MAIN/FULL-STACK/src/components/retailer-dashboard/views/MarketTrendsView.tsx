@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Search, TrendingUp, MapPin, Youtube, ShoppingBag, Newspaper, ArrowUpRight, Loader2, ExternalLink } from 'lucide-react'
 import { getMarketTrends } from '@/app/actions_trends'
-import { LineChart as _LC, Line as _L, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts'
+import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts'
 import Image from 'next/image'
 
 interface MarketCompetitor {
@@ -59,7 +59,7 @@ export function MarketTrendsView() {
             } else {
                 setError(result.error || 'Failed to fetch trends')
             }
-        } catch (_err) {
+        } catch {
             setError('An unexpected error occurred')
         } finally {
             setIsLoading(false)

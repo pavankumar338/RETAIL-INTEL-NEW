@@ -92,7 +92,7 @@ export function PricingOptimizationView({ products }: Props) {
             } else {
                 setStatus({ type: 'error', message: res.error || 'Failed to update price' })
             }
-        } catch (_err) {
+        } catch {
             setStatus({ type: 'error', message: 'An unexpected error occurred' })
         } finally {
             setUpdatingId(null)
@@ -115,7 +115,7 @@ export function PricingOptimizationView({ products }: Props) {
             } else {
                 setStatus({ type: 'error', message: res.error || 'Bulk update failed' })
             }
-        } catch (_err) {
+        } catch {
             setStatus({ type: 'error', message: 'An unexpected error occurred' })
         } finally {
             setIsBulkUpdating(false)
