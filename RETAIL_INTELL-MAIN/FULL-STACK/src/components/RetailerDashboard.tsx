@@ -63,7 +63,7 @@ export default function RetailerDashboard({ profile, products = [], customers = 
     const handleSignOut = async () => {
         const supabase = createClient()
         await supabase.auth.signOut()
-        window.location.href = '/login'
+        window.location.href = '/home'
     }
 
     const uniqueCategories = ['All', ...Array.from(new Set(products.map(p => p.category).filter(Boolean))) as string[]]
